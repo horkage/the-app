@@ -177,6 +177,17 @@ class TableViewController: UITableViewController {
         //print("numberOfRowsInSections thinks we have \(localDoods.count) doods")
         //return localDoods.count
     }
+    
+    override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "DoodTableViewCell", for: indexPath) as? DoodTableViewCell else {
+            fatalError("KABOOM BABY")
+        }
+        // cell.progressBar.setProgress(1.0, animated: false)
+        
+        
+        // contentView
+        // subViews
+    }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cellIdentifier = "DoodTableViewCell"
@@ -193,6 +204,8 @@ class TableViewController: UITableViewController {
         cell.expLabel.text = "\(experience)"
         cell.levelLabel.text = "\(level)"
         cell.doodImageView.image = dood?.image
+        
+
 
         
         let status: String = (dood?.status)!
@@ -208,22 +221,77 @@ class TableViewController: UITableViewController {
         default:
             cell.backgroundColor = UIColor.white
         }
-        /*
-         if status=="dead" {
-         cell.backgroundColor = UIColor.red
-         } else if status=="complete" {
-         cell.backgroundColor = UIColor.green
-         } else if status=="dispatched" {
-         cell.backgroundColor = UIColor.gray
-         } else {
-         cell.backgroundColor = UIColor.white
-         }
-         */
+
         
         // Configure the cell...
- 
+        // cell.progressBar.setProgress(1.0, animated: false)
+        
+        /*
+        let this = cell
+        var count: Float = 0.0
+        let max: Float = 1.0
+        let inc: Float = 0.1
+        
+        var numerator: Int = 1
+        var denominator: Int = 1
+        
+        if (indexPath.row == 0) {
+            denominator = 100
+        } else if (indexPath.row == 1) {
+            denominator = 200
+        } else {
+            denominator = 300
+        }
+        
+        
+        
+        DispatchQueue.global(qos: .userInitiated).async {
+            while count <= max {
+                DispatchQueue.main.async {
+                    this.progressBar.setProgress(count, animated: true)
+                }
+                count += inc
+                numerator += 1
+                
+                print("\(numerator)/\(denominator) = \(Float(numerator / denominator) * 100)")
+                
+                sleep(1)
+            }
+        }
+        */
+        
+        var limit: Int = 0
+        var denominator: Float = 1
+        
+        if (indexPath.row == 0) {
+            denominator = 100.0
+            limit = 100
+        } else if (indexPath.row == 1) {
+            denominator = 200.0
+            limit = 200
+        } else {
+            denominator = 300.0
+            limit = 300
+        }
+        
+        var counter: Int = 0
+        
+        let this = cell
+        
+        DispatchQueue.global(qos: .userInitiated).async {
+            while counter <= limit {
+                DispatchQueue.main.async {
+                    this.progressBar.setProgress(Float(counter) / denominator, animated: true)
+                }
+                counter += 1
+                
+                print("\(Float(counter))/\(denominator) = \(Float(counter) / denominator)")
+                
+                sleep(1)
+            }
+        }
+
         return cell
- 
     }
 
     /*

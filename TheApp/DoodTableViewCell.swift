@@ -13,6 +13,7 @@ class DoodTableViewCell: UITableViewCell {
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var expLabel: UILabel!
     @IBOutlet weak var doodImageView: UIImageView!
+    @IBOutlet weak var progressBar: UIProgressView!
 
     override func awakeFromNib() {
         super.awakeFromNib()

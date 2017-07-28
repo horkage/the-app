@@ -86,8 +86,8 @@
                                             <nil key="textColor"/>
                                             <nil key="highlightedColor"/>
                                         </label>
-                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Level" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="m5L-8w-2KR">
-                                            <rect key="frame" x="98" y="37" width="69" height="45"/>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Level" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="m5L-8w-2KR">
+                                            <rect key="frame" x="98" y="37" width="69" height="21"/>
                                             <constraints>
                                                 <constraint firstAttribute="width" constant="69" id="uxg-mp-NZP"/>
                                             </constraints>
@@ -95,12 +95,16 @@
                                             <nil key="textColor"/>
                                             <nil key="highlightedColor"/>
                                         </label>
-                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Sniffy" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uHJ-bC-SQs">
-                                            <rect key="frame" x="175" y="37" width="137" height="45"/>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Sniffy" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uHJ-bC-SQs">
+                                            <rect key="frame" x="175" y="37" width="137" height="21"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                             <nil key="textColor"/>
                                             <nil key="highlightedColor"/>
                                         </label>
+                                        <progressView opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="PAg-No-udf">
+                                            <rect key="frame" x="98" y="73" width="214" height="2"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        </progressView>
                                     </subviews>
                                     <constraints>
                                         <constraint firstItem="m5L-8w-2KR" firstAttribute="top" secondItem="9CB-Ya-fTW" secondAttribute="bottom" constant="8" symbolic="YES" id="3Dc-Lw-byG"/>
@@ -127,6 +131,7 @@
                                     <outlet property="expLabel" destination="uHJ-bC-SQs" id="ell-h4-8fB"/>
                                     <outlet property="levelLabel" destination="m5L-8w-2KR" id="5tB-1A-5Tt"/>
                                     <outlet property="nameLabel" destination="9CB-Ya-fTW" id="Ie9-MM-B9F"/>
+                                    <outlet property="progressBar" destination="PAg-No-udf" id="7oZ-kV-Ls3"/>
                                     <segue destination="BYZ-38-t0r" kind="show" identifier="ShowDetail" id="nRg-Jc-2iA"/>
                                 </connections>
                             </tableViewCell>
