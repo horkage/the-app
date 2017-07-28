@@ -13,7 +13,6 @@ class TableViewController: UITableViewController {
     
     
     static let sharedTableViewController = TableViewController()
-
     
     var localDoods = [Dood?]() {
         willSet(newList) {
@@ -45,19 +44,13 @@ class TableViewController: UITableViewController {
         return self
     }
     
-    static func dumpDoods(doods: [Dood?], controller: TableViewController) {
-        controller.takeDoods(doods: doods)
-    }
-    
-    func takeDoods(doods: [Dood?]) {
-        for dood in doods {
-            //localDoods.append(dood)
-        }
-    }
-    
     override func viewWillAppear(_ animated: Bool) {
-        print("viewWillAppear()")
-        self.tableView.reloadData()
+        for (index, dood) in localDoods.enumerated() {
+            if (dood?.doodid == ViewController.stashGuy?.doodid) {
+                localDoods[index] = dood
+            }
+        }
+        tableView.reloadData()
     }
     
     override func viewDidLoad() {
@@ -200,6 +193,33 @@ class TableViewController: UITableViewController {
         cell.expLabel.text = "\(experience)"
         cell.levelLabel.text = "\(level)"
         cell.doodImageView.image = dood?.image
+
+        
+        let status: String = (dood?.status)!
+
+        print(status)
+        switch status {
+        case "dead":
+            cell.backgroundColor = UIColor.red
+        case "complete":
+            cell.backgroundColor = UIColor.green
+        case "dispatched":
+            cell.backgroundColor = UIColor.gray
+        default:
+            cell.backgroundColor = UIColor.white
+        }
+        /*
+         if status=="dead" {
+         cell.backgroundColor = UIColor.red
+         } else if status=="complete" {
+         cell.backgroundColor = UIColor.green
+         } else if status=="dispatched" {
+         cell.backgroundColor = UIColor.gray
+         } else {
+         cell.backgroundColor = UIColor.white
+         }
+         */
+        
         // Configure the cell...
  
         return cell

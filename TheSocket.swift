@@ -12,6 +12,9 @@ import UIKit
 class TheSocket: NSObject {
 
     static let sharedInstance = TheSocket()
+    static var pending: Int = 0
+    static var total: Int = 0
+    //static var stupidController = TableViewController()
     
     let socket = SocketIOClient(
     socketURL: URL(string: "http://192.168.0.112:9000")!,
@@ -41,6 +44,10 @@ class TheSocket: NSObject {
         socket.on("serverSendsDoodList") {data, ack in
             print("The server responded with a list of doods for this client")
             
+            theController.localDoods = [Dood?]()
+            
+            var pendingDoods: Int = 0
+            
             // the raw socket data
             let jsonRawString = data[0]
             
@@ -67,6 +74,10 @@ class TheSocket: NSObject {
                         let experience: Int = dood["experience"] as! Int
                         let image: String?
                         image = dood["image"] as? String
+                        
+                        if status == "complete" {
+                            pendingDoods += 1
+                        }
                         
                         // don't instantiate image objects from nil urls
                         if (image != nil) {
@@ -95,12 +106,22 @@ class TheSocket: NSObject {
             //TableViewController.dumpDoods(doods: Dood.doods, controller: TableViewController.sharedTableViewController.getInstance() as! TableViewController)
             //TableViewController.sharedTableViewController.getInstance().tableView.reloadData()
             DispatchQueue.main.async {
+                TheSocket.pending = pendingDoods
+                TheSocket.total = theController.localDoods.count
+                
                 theController.tableView.reloadData()
+                /*
+                 UIApplication.shared.windows[0].rootViewController?.navigationController?.navigationBar.items?[0].rightBarButtonItem?.title = "WAT"
+                 */
+                // print(theController)
+                theController.navigationController?.navigationBar.items?[0].rightBarButtonItem?.title = "\(TheSocket.pending)/\(TheSocket.total)"
             }
         }
         
         socket.on("dispatchComplete") { data, ack in
             print("guy came back")
+            
+            TheSocket.pending += 1
             
             // the raw socket data
             let jsonRawString = data[0]
@@ -115,12 +136,63 @@ class TheSocket: NSObject {
                 let jsonObject = try? JSONSerialization.jsonObject(with: temp, options: JSONSerialization.ReadingOptions())
                 if let jsonEntry = jsonObject as? [String: Any] {
                     let name = jsonEntry["name"] as! String
-                    print(name)
                 
-                    let viewController = UIApplication.shared.windows[0].rootViewController?.childViewControllers[1] as? ViewController
-                    viewController?.detailNameLabel.text = "THOR IS HE-AH"
-                    viewController?.sendButton.isEnabled = true
+                    let level = jsonEntry["level"] as! Int
+                    let rarity = jsonEntry["rarity"] as! Int
+                    let type = jsonEntry["type"] as! String
+                    let status = jsonEntry["status"] as! String
+                    let doodid = jsonEntry["doodid"] as! Int
+                    let experience: Int = jsonEntry["experience"] as! Int
+                    let image: String?
+                    image = jsonEntry["image"] as? String
+                    
+                    if (image != nil) {
+                        // if image..
+                        let url = URL(string: image!)
+                        let imageData = try? Data(contentsOf: url!)
+                        
+                        if let imageData = imageData {
+                            // instantiate Dood if we made it this far
+                            let guy = Dood(doodid: doodid, theOwner: (UIDevice.current.identifierForVendor?.uuidString)!, level: level, name: name, image: UIImage(data: imageData)!, rarity: rarity, type: type, status: status, experience: experience)
+                            
+                            //Dood.doods += [guy]
+                            //TableViewController.sharedTableViewController.localDoods += [guy]
+                            //print("appending guy")
+                            //TableViewController.sharedTableViewController.localDoods.append(guy)
+                            /*
+                            theController.localDoods.forEach { dood in
+                                if (dood?.doodid == guy?.doodid) {
+                                    guy = dood
+                                }
+                            }
+                            */
+                            // theController.localDoods.append(guy)
+                            for (index, existingDood) in theController.localDoods.enumerated() {
+                                if (existingDood?.doodid == guy?.doodid) {
+                                    theController.localDoods[index] = guy
+                                }
+                            }
+                        }
+                    } else {
+                        // if no image..
+                    }
+                
+                    
+                    //Optional([<TheApp.TableViewController: 0x117d09880>, <TheApp.ViewController: 0x117e1eb80>])
+                    
+                    if (UIApplication.shared.windows[0].rootViewController?.childViewControllers.count == 1) {
+                        // must be table view
+                        theController.navigationController?.navigationBar.items?[0].rightBarButtonItem?.title = "\(TheSocket.pending)/\(TheSocket.total)"
+                    } else {
+                        // must be detail view?
+                        let viewController = UIApplication.shared.windows[0].rootViewController?.childViewControllers[1] as? ViewController
+                        viewController?.detailNameLabel.text = name
+                        viewController?.sendButton.isEnabled = true
+                    }
                 }
+            }
+            DispatchQueue.main.async {
+                theController.tableView.reloadData()
             }
         }
     }
@@ -131,7 +203,14 @@ class TheSocket: NSObject {
     }
     
     func dispatchDood(dood: Dood) {
+        // TheSocket.pending -= 1
+        // UIApplication.shared.windows[0].rootViewController?.navigationController?.navigationBar.items?[0].rightBarButtonItem?.title = "\(TheSocket.idle)/\(TheSocket.total)"
+        
+        // UIApplication.shared.windows[0].rootViewController?.navigationController?.navigationBar.items?[0].rightBarButtonItem?.title = "FART"
+        
         print("dispatching \(dood.name)")
+        dood.status = "dispatched"
+        
         socket.emit("dispatch", "{ \"name\": \"\(dood.name)\", \"doodid\": \"\(dood.doodid)\", \"theOwner\": \"\(dood.theOwner)\", \"level\": \"\(dood.level)\", \"image\": \"\", \"rarity\": \"\(dood.rarity)\", \"type\": \"\(dood.type)\", \"status\": \"\(dood.status)\", \"experience\": \"\(dood.experience)\" }")
     }
 }

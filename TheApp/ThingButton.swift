@@ -11,7 +11,6 @@ import UIKit
 class ThingButton: UIBarButtonItem {
     override init() {
         super.init()
-        NSLog("button initted")
     }
     
     required init?(coder aDecoder: NSCoder) {
