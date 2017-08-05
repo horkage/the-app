@@ -15,10 +15,13 @@ class Dood: NSObject {
     var level: Int
     var name: String
     var image: UIImage
+    var imageURL: String
     var rarity: Int
     var type: String
     var status: String
     var experience: Int
+    var duration: Int
+    var currentTick: Int
     static var doods = [Dood?]()
     
     struct PropertyKey {
@@ -27,23 +30,29 @@ class Dood: NSObject {
         static let level = "level"
         static let name = "name"
         static let image = "image"
+        static let imageURL = "imageURL"
         static let rarity = "rarity"
         static let type = "type"
         static let status = "status"
         static let experience = "experience"
+        static let duration = "duration"
+        static let currentTick = "currentTick"
     }
     
-    init?(doodid: Int, theOwner: String, level: Int, name: String, image: UIImage, rarity: Int, type: String, status: String,  experience: Int) {
+    init?(doodid: Int, theOwner: String, level: Int, name: String, image: UIImage, imageURL: String, rarity: Int, type: String, status: String,  experience: Int, duration: Int, currentTick: Int) {
         
         self.doodid = doodid
         self.theOwner = theOwner
         self.level = level
         self.name = name
         self.image = image
+        self.imageURL = imageURL
         self.rarity = rarity
         self.type = type
         self.status = status
         self.experience = experience
+        self.duration = duration
+        self.currentTick = currentTick
     }
     
     /*

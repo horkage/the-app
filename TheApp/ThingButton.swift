@@ -15,7 +15,7 @@ class ThingButton: UIBarButtonItem {
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        self.title = "2/3"
+        self.title = "0/0"
     }
     
     

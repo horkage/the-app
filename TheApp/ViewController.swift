@@ -18,7 +18,6 @@ class ViewController: UIViewController {
     var dood: Dood?
 
     override func viewWillDisappear(_ animated: Bool) {
-        print("navbarwillappear")
         self.navigationController?.navigationBar.items?[0].rightBarButtonItem?.title = "\(TheSocket.pending)/\(TheSocket.total)"
     }
 
@@ -26,6 +25,7 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         
         if let dood = dood {
+            print("looking at \(dood.name)")
             detailNameLabel.text = dood.name
             detailImageView.image = dood.image
             
@@ -41,7 +41,6 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     @IBAction func sendDood(_ sender: UIButton) {
-        print(TableViewController.sharedTableViewController.localDoods)
         sender.isEnabled = false
         if let dood = dood {
             print("sending \(dood.name) to his doom")

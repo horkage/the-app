@@ -17,7 +17,7 @@ class TheSocket: NSObject {
     //static var stupidController = TableViewController()
     
     let socket = SocketIOClient(
-    socketURL: URL(string: "http://192.168.0.112:9000")!,
+    socketURL: URL(string: "http://192.168.0.161:9000")!,
     config: [
     .log(false),
     .forceWebsockets(true),
@@ -38,6 +38,70 @@ class TheSocket: NSObject {
         socket.on("acknowledgeConnection") {data, ack in
             print("connection acknowledged")
             self.socket.emit("init", (UIDevice.current.identifierForVendor?.uuidString)!)
+        }
+        
+        socket.on("durationCalculatedForDood") {data, ack in
+            print("The server has responded with a dood object that contains the duration")
+            let guy: Dood?
+            let jsonRawString = data[0]
+            
+            // convert the raw socket data to string
+            let jsonString: String = (jsonRawString as? String)!
+            
+            // encode the string so it can be parsed
+            let json = jsonString.data(using: String.Encoding.utf8, allowLossyConversion: false)
+
+            if let temp = json {
+                // "parse" the json into a swift "object" thingy
+                let jsonObject = try? JSONSerialization.jsonObject(with: temp, options: JSONSerialization.ReadingOptions())
+                if let jsonEntry = jsonObject as? [String: Any] {
+                    let name = jsonEntry["name"] as! String
+                    
+                    let level = jsonEntry["level"] as! Int
+                    let rarity = jsonEntry["rarity"] as! Int
+                    let type = jsonEntry["type"] as! String
+                    let status = jsonEntry["status"] as! String
+                    let doodid = jsonEntry["doodid"] as! Int
+                    let experience: Int = jsonEntry["experience"] as! Int
+                    let duration: Int = jsonEntry["duration"] as! Int
+                    let currentTick: Int = jsonEntry["currentTick"] as! Int
+                    let image: String?
+                    image = jsonEntry["image"] as? String
+                    let imageURL = jsonEntry["imageURL"] as? String
+                    
+                    if (imageURL != nil) {
+                        // if image..
+                        let url = URL(string: imageURL!)
+                        let imageData = try? Data(contentsOf: url!)
+                        
+                        if let imageData = imageData {
+                            // instantiate Dood if we made it this far
+                            guy = Dood(doodid: doodid, theOwner: (UIDevice.current.identifierForVendor?.uuidString)!, level: level, name: name, image: UIImage(data: imageData)!, imageURL: imageURL!, rarity: rarity, type: type, status: status, experience: experience, duration: duration, currentTick: currentTick)
+                            
+                            let this = guy
+                            var count = 1
+                            DispatchQueue.global(qos: .userInitiated).async {
+                                print("dispatching clock")
+                                while count <= (this?.duration)! {
+                                    this?.currentTick += 1
+                                    count += 1
+                                    sleep(1)
+                                }
+                            }
+                            
+                            // smash this guy back into the table view array because he has
+                            // new duration data inside him
+                            for (index, existingDood) in theController.localDoods.enumerated() {
+                                if (existingDood?.doodid == guy?.doodid) {
+                                    theController.localDoods[index] = guy
+                                }
+                            }
+                        }
+                    } else {
+                        // if no image..
+                    }
+                }
+            }
         }
         
         // create Dood objects from socket data for this client
@@ -72,22 +136,25 @@ class TheSocket: NSObject {
                         let status = dood["status"] as! String
                         let doodid = dood["doodid"] as! Int
                         let experience: Int = dood["experience"] as! Int
+                        let duration: Int = dood["duration"] as! Int
+                        let currentTick: Int = dood["currentTick"] as! Int
                         let image: String?
                         image = dood["image"] as? String
+                        let imageURL = dood["imageURL"] as? String
                         
                         if status == "complete" {
                             pendingDoods += 1
                         }
                         
                         // don't instantiate image objects from nil urls
-                        if (image != nil) {
+                        if (imageURL != nil) {
                             // if image..
-                            let url = URL(string: image!)
+                            let url = URL(string: imageURL!)
                             let imageData = try? Data(contentsOf: url!)
                          
                             if let imageData = imageData {
                                 // instantiate Dood if we made it this far
-                                let guy = Dood(doodid: doodid, theOwner: (UIDevice.current.identifierForVendor?.uuidString)!, level: level, name: name, image: UIImage(data: imageData)!, rarity: rarity, type: type, status: status, experience: experience)
+                                let guy = Dood(doodid: doodid, theOwner: (UIDevice.current.identifierForVendor?.uuidString)!, level: level, name: name, image: UIImage(data: imageData)!, imageURL: imageURL!, rarity: rarity, type: type, status: status, experience: experience, duration: duration, currentTick: currentTick)
                                 
                                 //Dood.doods += [guy]
                                 //TableViewController.sharedTableViewController.localDoods += [guy]
@@ -119,7 +186,7 @@ class TheSocket: NSObject {
         }
         
         socket.on("dispatchComplete") { data, ack in
-            print("guy came back")
+
             
             TheSocket.pending += 1
             
@@ -136,6 +203,7 @@ class TheSocket: NSObject {
                 let jsonObject = try? JSONSerialization.jsonObject(with: temp, options: JSONSerialization.ReadingOptions())
                 if let jsonEntry = jsonObject as? [String: Any] {
                     let name = jsonEntry["name"] as! String
+                    print("\(name) as returned.")
                 
                     let level = jsonEntry["level"] as! Int
                     let rarity = jsonEntry["rarity"] as! Int
@@ -143,17 +211,21 @@ class TheSocket: NSObject {
                     let status = jsonEntry["status"] as! String
                     let doodid = jsonEntry["doodid"] as! Int
                     let experience: Int = jsonEntry["experience"] as! Int
+                    let duration: Int = jsonEntry["duration"] as! Int
+                    let currentTick: Int = jsonEntry["currentTick"] as! Int
                     let image: String?
                     image = jsonEntry["image"] as? String
                     
-                    if (image != nil) {
+                    let imageURL = jsonEntry["imageURL"] as? String
+                    
+                    if (imageURL != nil) {
                         // if image..
-                        let url = URL(string: image!)
+                        let url = URL(string: imageURL!)
                         let imageData = try? Data(contentsOf: url!)
                         
                         if let imageData = imageData {
                             // instantiate Dood if we made it this far
-                            let guy = Dood(doodid: doodid, theOwner: (UIDevice.current.identifierForVendor?.uuidString)!, level: level, name: name, image: UIImage(data: imageData)!, rarity: rarity, type: type, status: status, experience: experience)
+                            let guy = Dood(doodid: doodid, theOwner: (UIDevice.current.identifierForVendor?.uuidString)!, level: level, name: name, image: UIImage(data: imageData)!, imageURL: imageURL!, rarity: rarity, type: type, status: status, experience: experience, duration: 0, currentTick: 0)
                             
                             //Dood.doods += [guy]
                             //TableViewController.sharedTableViewController.localDoods += [guy]
@@ -211,7 +283,7 @@ class TheSocket: NSObject {
         print("dispatching \(dood.name)")
         dood.status = "dispatched"
         
-        socket.emit("dispatch", "{ \"name\": \"\(dood.name)\", \"doodid\": \"\(dood.doodid)\", \"theOwner\": \"\(dood.theOwner)\", \"level\": \"\(dood.level)\", \"image\": \"\", \"rarity\": \"\(dood.rarity)\", \"type\": \"\(dood.type)\", \"status\": \"\(dood.status)\", \"experience\": \"\(dood.experience)\" }")
+        socket.emit("dispatch", "{ \"name\": \"\(dood.name)\", \"doodid\": \"\(dood.doodid)\", \"theOwner\": \"\(dood.theOwner)\", \"level\": \"\(dood.level)\", \"image\": \"\(dood.imageURL)\", \"imageURL\": \"\(dood.imageURL)\", \"rarity\": \"\(dood.rarity)\", \"type\": \"\(dood.type)\", \"status\": \"\(dood.status)\", \"experience\": \"\(dood.experience)\", \"duration\": \"\(dood.duration)\", \"currentTick\": \"\(dood.currentTick)\" }")
     }
 }
 

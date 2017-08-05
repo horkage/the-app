@@ -16,11 +16,9 @@ class TableViewController: UITableViewController {
     
     var localDoods = [Dood?]() {
         willSet(newList) {
-            print("will set")
             //self.tableView.reloadData()
         }
         didSet {
-            print("Did set")
             //self.tableView.reloadData()
         }
     }
@@ -51,6 +49,7 @@ class TableViewController: UITableViewController {
             }
         }
         tableView.reloadData()
+        print("=================================")
     }
     
     override func viewDidLoad() {
@@ -171,11 +170,8 @@ class TableViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        print("numberOfRowsInSections thinks we have \(localDoods.count) doods")
+        // print("numberOfRowsInSections thinks we have \(localDoods.count) doods")
         return localDoods.count
-
-        //print("numberOfRowsInSections thinks we have \(localDoods.count) doods")
-        //return localDoods.count
     }
     
     override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
@@ -190,27 +186,32 @@ class TableViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        // print("cellForRowAt called again?")
         let cellIdentifier = "DoodTableViewCell"
         guard let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as? DoodTableViewCell else {
             fatalError("table cell blew up yo.")
         }
-        //let dood = localDoods[indexPath.row]
+
         let dood = localDoods[indexPath.row]
         cell.nameLabel.text = dood?.name
         
+        
+        // print("\(indexPath.row) = \(String(describing: dood?.name))")
+
+        
         let experience: Int = (dood?.experience)!
+        let duration: Int = (dood?.duration)!
         let level: Int = (dood?.level)!
+        let currentTick: Int = (dood?.currentTick)!
         
         cell.expLabel.text = "\(experience)"
         cell.levelLabel.text = "\(level)"
         cell.doodImageView.image = dood?.image
         
-
-
-        
         let status: String = (dood?.status)!
+        
+        // print("\(String(describing: dood?.name))'s duration: \(String(describing: dood?.duration))")
 
-        print(status)
         switch status {
         case "dead":
             cell.backgroundColor = UIColor.red
@@ -260,37 +261,106 @@ class TableViewController: UITableViewController {
         }
         */
         
-        var limit: Int = 0
-        var denominator: Float = 1
+        /*
+        print("LOAD THIS CELL \(String(describing: cell.nameLabel.text)) [\(cell.alreadyRunning)]")
         
-        if (indexPath.row == 0) {
-            denominator = 100.0
-            limit = 100
-        } else if (indexPath.row == 1) {
-            denominator = 200.0
-            limit = 200
-        } else {
-            denominator = 300.0
-            limit = 300
-        }
+        if (!cell.alreadyRunning) {
+            print("\(String(describing: cell.nameLabel.text))'s cell is not already running")
+            var limit: Int = 0
+            var denominator: Float = 1
         
-        var counter: Int = 0
-        
-        let this = cell
-        
-        DispatchQueue.global(qos: .userInitiated).async {
-            while counter <= limit {
-                DispatchQueue.main.async {
-                    this.progressBar.setProgress(Float(counter) / denominator, animated: true)
-                }
-                counter += 1
-                
-                print("\(Float(counter))/\(denominator) = \(Float(counter) / denominator)")
-                
-                sleep(1)
+            if (indexPath.row == 0) {
+                denominator = 100.0
+                limit = 100
+            } else if (indexPath.row == 1) {
+                denominator = 100.0
+                limit = 100
+            } else {
+                denominator = 100.0
+                limit = 100
             }
-        }
+        
+            var counter: Int = 0
+        
+            let this = cell
+            
+            limit = 10
+        
+            DispatchQueue.global(qos: .userInitiated).async {
+                print("gonna async \(String(describing: this.nameLabel.text))")
+                print("\(counter) <= \(limit)")
 
+                while counter <= limit {
+                    print("\(String(describing: this.nameLabel.text))'s count is: \(counter)")
+                    
+                    DispatchQueue.main.async {
+                        this.progressBar.setProgress(Float(counter) / denominator, animated: true)
+                    }
+                    counter += 1
+                    
+                    
+                    // print("\(Float(counter))/\(denominator) = \(Float(counter) / denominator)")
+                    this.alreadyRunning = true
+                    print("\(String(describing: this.nameLabel.text))'s bool is: \(this.alreadyRunning)")
+                    sleep(1)
+                }
+                if (counter == limit) {
+                    this.alreadyRunning = false
+                }
+            }
+        } else {
+            print("\(String(describing: cell.nameLabel.text))'s cell is currently running")
+        }
+        */
+        
+        if (status == "dispatched") {
+            let this = cell
+            let closureDood = dood
+            DispatchQueue.global(qos: .userInitiated).async {
+                print("\(String(describing: closureDood?.name)) already running: \(this.alreadyRunning)")
+                if (!this.alreadyRunning) {
+                    
+                    // print("\(String(describing: this.nameLabel.text))'s cell is not already running")
+                    this.limit = duration
+                    this.denominator = Float(duration)
+                    this.counter = 1
+                    
+                    if (closureDood?.currentTick != 0) {
+                        this.counter = (closureDood?.currentTick)!
+                    }
+                    
+                    print("Setting \(String(describing: closureDood?.name)) \(this.limit) \(this.denominator) \(this.counter)")
+
+                    // print("gonna async \(String(describing: this.nameLabel.text))")
+                    // print("\(this.counter) <= \(this.limit)")
+                    
+
+                    while this.counter <= this.limit {
+                        // print("\(String(describing: this.nameLabel.text))'s count is: \(this.counter)")
+                        print("\(String(describing: closureDood?.name)) \(this.counter) \(this.denominator)")
+                        
+                        DispatchQueue.main.async {
+                             this.progressBar.setProgress(Float(this.counter) / this.denominator, animated: true)
+                        }
+                        this.counter += 1
+                        // this.currentTick = counter
+                        closureDood?.currentTick = this.counter
+                        
+                            
+                        // print("\(Float(counter))/\(denominator) = \(Float(counter) / denominator)")
+                        this.alreadyRunning = true
+                        
+                        print("setting \(String(describing: closureDood?.name))'s running status to: \(this.alreadyRunning)")
+                        // print("\(String(describing: this.nameLabel.text))'s bool is: \(this.alreadyRunning)")
+                        sleep(1)
+                    }
+                } else {
+                    // print("\(String(describing: this.nameLabel.text))'s cell is currently running")
+                }
+            }
+        } else if (status == "completed") {
+            cell.progressBar.setProgress(1.0, animated: true)
+        }
         return cell
     }
 
